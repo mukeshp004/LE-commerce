@@ -19,13 +19,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 });
 
 
-Route::post('login', 'API\LoginController@authenticated');
+Route::post('login', 'Api\Admin\LoginController@authenticated');
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::namespace('API')->group(function () {
+    Route::namespace('Api\Admin')->group(function () {
+        Route::apiResource('users', 'UserController');
+
         Route::apiResources([
-            'users' => 'UserController'
+            'categories' => 'CategoryController',
+            'currencies' => 'CurrencyController',
+            'stores' => 'StoreController',
         ]);
     });
 
