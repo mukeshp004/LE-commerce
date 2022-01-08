@@ -9,6 +9,7 @@ Lite E-commerce  is the e-commerce api framework made on top of laravel.
 - Database agnostic [schema migrations](https://laravel.com/docs/migrations).
 - [Robust background job processing](https://laravel.com/docs/queues).
 - [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- [EAV Model] (https://github.com/rinvex/laravel-attributes)
 
 
 ## Learning Lite E-Commerec

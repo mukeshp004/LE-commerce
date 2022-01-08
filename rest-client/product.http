@@ -1,0 +1,13 @@
+@host = http://localhost:8000/api
+
+GET {{host}}/product
+
+
+###
+POST {{host}}/product
+Content-Type: application/json
+Authorization: 123
+
+{
+
+}
