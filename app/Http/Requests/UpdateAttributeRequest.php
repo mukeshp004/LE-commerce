@@ -13,7 +13,7 @@ class UpdateAttributeRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**

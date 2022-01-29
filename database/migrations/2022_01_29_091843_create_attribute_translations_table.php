@@ -16,10 +16,11 @@ class CreateAttributeTranslationsTable extends Migration
         Schema::create('attribute_translations', function (Blueprint $table) {
             $table->id();
             $table->text('name')->nullable();
+            $table->text('description')->nullable();
             $table->string('locale');
             $table->foreignId('attribute_id')->constrained()->onDelete('cascade');
             $table->unique(['attribute_id', 'locale']);
-            $table->timestamps();
+            // $table->timestamps();
         });
     }
 

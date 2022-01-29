@@ -19,7 +19,7 @@ class CreateAttributeOptionTranslationsTable extends Migration
             $table->text('name')->nullable();
             $table->foreignId('attribute_option_id')->constrained()->onDelete('cascade');
             $table->unique(['attribute_option_id', 'locale']);
-            $table->timestamps();
+            // $table->timestamps();
         });
     }
 

@@ -6,7 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Attribute;
 use App\Http\Requests\StoreAttributeRequest;
 use App\Http\Requests\UpdateAttributeRequest;
+use App\Models\AttributeOption;
 use Illuminate\Http\Response;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class AttributeController extends Controller
@@ -36,10 +39,40 @@ class AttributeController extends Controller
         $data = $request->only($attribute->getFillable());
         $data['uuid'] = Str::uuid();
 
-        dd($data);
-        // return $data;
-        $attribute = attribute::create($data);
-        return response()->json($attribute, Response::HTTP_CREATED);
+
+        $options = $request->has('options') ? $request->get('options') : [];
+
+        unset($data['options']);
+
+
+        DB::beginTransaction();
+
+        $attribute = Attribute::create($data);
+
+        try {
+            if (in_array($attribute->type, [
+                Attribute::$type['select'],
+                Attribute::$type['multiselect'],
+                Attribute::$type['radio'],
+                Attribute::$type['checkbox'],
+            ]) && count($options)) {
+                foreach ($options as $option) {
+                    $attributeOption = new AttributeOption();
+
+                    // $option['attribute_id'] = $attribute->id;
+                    $option = Arr::only($option, $attributeOption->getFillable());
+
+                    $attribute->options()->create($option);
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+
+
+            DB::rollBack();
+        }
+
+        return response()->json($attribute->load(['options']), Response::HTTP_CREATED);
     }
 
     /**
@@ -63,9 +96,36 @@ class AttributeController extends Controller
     public function update(UpdateAttributeRequest $request, Attribute $attribute)
     {
 
-        $attribute->update($request->only($attribute->getFillable()));
+        DB::beginTransaction();
 
-        return response()->json($attribute, Response::HTTP_ACCEPTED);
+        try {
+            $attribute->update($request->only($attribute->getFillable()));
+
+            $options = $request->has('options') ? $request->get('options') : [];
+
+            if (in_array($attribute->type, [
+                Attribute::$type['select'],
+                Attribute::$type['multiselect'],
+                Attribute::$type['radio'],
+                Attribute::$type['checkbox'],
+            ]) && count($options)) {
+                foreach ($options as $option) {
+                    if (isset($option['id'])) {
+                        $attribute->options()->updateOrCreate(
+                            ['id' => $option['id']],  // where clause
+                            Arr::only($option, $attribute->options()->getModel()->getFillable())
+                        );
+                    } else {
+                        $option = Arr::only($option, $attribute->options()->getModel()->getFillable());
+                        $attribute->options()->create($option);
+                    }
+                }
+            }
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollBack();
+        }
+        return response()->json($attribute->load(['options']), Response::HTTP_ACCEPTED);
     }
 
     /**

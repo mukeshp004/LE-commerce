@@ -30,6 +30,7 @@ class CreateAttributesTable extends Migration
             $table->boolean('is_comparable')->default(0);
             $table->boolean('use_in_flat')->default(0);
             $table->integer('position')->nullable();
+            $table->boolean('status')->default(0);
             $table->timestamps();
         });
     }
