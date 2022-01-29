@@ -29,11 +29,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResources([
             'categories' => 'CategoryController',
+            'attributes' => 'AttributeController',
             'currencies' => 'CurrencyController',
             'stores' => 'StoreController',
         ]);
     });
-
 });
 
 

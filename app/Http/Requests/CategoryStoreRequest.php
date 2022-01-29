@@ -2,7 +2,10 @@
 
 namespace App\Http\Requests;
 
+
+use Illuminate\Validation\Rule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Lang;
 
 class CategoryStoreRequest extends FormRequest
 {
@@ -24,7 +27,23 @@ class CategoryStoreRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required', 'unique:categories', 'max:100'],
+            // 'name' => ['required', 'unique:categories', 'max:100'],
+            'name' => [
+                'required',
+                'unique:category_translations',
+                Rule::unique('category_translations')->where(function ($query) {
+                    return $query->where('locale', Lang::locale());
+                }),
+                'max:100'
+            ],
+            'slug' => [
+                'required',
+                'unique:category_translations',
+                Rule::unique('category_translations')->where(function ($query) {
+                    return $query->where('locale', Lang::locale());
+                }),
+                'max:100'
+            ],
             'description' => ['required', 'max:500'],
         ];
     }

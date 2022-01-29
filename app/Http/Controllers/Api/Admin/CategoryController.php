@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
@@ -20,7 +21,7 @@ class CategoryController extends Controller
     public function index()
     {
         $categories =  Category::all();
-        return CategoryResource::collection($categories);
+        // return CategoryResource::collection($categories);
         return response()->json($categories, Response::HTTP_OK);
     }
 
@@ -32,25 +33,17 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        /*
-        // To Validate form controller
-        $validation = Validator::make($request->all(), [
-            'name' => 'required'
-        ]);
-
-        if($validation->fails()) {
-            return response()->json([
-                "errors" => $validation->errors()
-            ], Response::HTTP_BAD_REQUEST);
-        }
-        */
-
-
+        $category = new Category();
         $validated = $request->validated();
-        $category = Category::create($request->only(['name', 'description']));
-        
-        return new CategoryResource($category);
-        // return response()->json($request, Response::HTTP_CREATED);
+
+        $data = $request->only($category->getFillable());
+        $data['uuid'] = Str::uuid();
+
+        // return $data;
+        $category = Category::create($data);
+
+        // return new CategoryResource($category);
+        return response()->json($category, Response::HTTP_CREATED);
     }
 
     /**
@@ -61,7 +54,8 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        return new CategoryResource($category);
+        return $category;
+        // return new CategoryResource($category);
     }
 
     /**
@@ -73,8 +67,10 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
-        return new CategoryResource($category);
+        $category->update($request->only($category->getFillable()));
+
+        // return new CategoryResource($category);
+        return response()->json($category, Response::HTTP_ACCEPTED);
     }
 
     /**
@@ -85,8 +81,11 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        if($category->delete()) {
-            return new CategoryResource($category);    
+
+        // return response()->json($category, Response::HTTP_NO_CONTENT);
+        if ($category->delete()) {
+            // return new CategoryResource($category);
+            return response()->json($category, Response::HTTP_NO_CONTENT);
         }
     }
 }
