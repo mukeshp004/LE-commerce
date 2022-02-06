@@ -11,15 +11,19 @@ class AttributeGroup extends Model
 
     public $timestamps = false;
 
-    protected $fillable = ['name', 'position', 'is_user_defined'];
+    protected $fillable = ['name', 'position', 'is_user_defined', 'attribute_family_id'];
+
+
+    protected $with = ['attributes'];
+
 
     /**
      * Get the attributes that owns the attribute group.
      */
-    // public function custom_attributes()
-    // {
-    //     return $this->belongsToMany(AttributeProxy::modelClass(), 'attribute_group_mappings')
-    //         ->withPivot('position')
-    //         ->orderBy('pivot_position', 'asc');
-    // }
+    public function attributes()
+    {
+        return $this->belongsToMany(Attribute::class, 'attribute_group_mappings')
+            ->withPivot('position')
+            ->orderBy('pivot_position', 'asc');
+    }
 }

@@ -29,6 +29,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::apiResources([
             'categories' => 'CategoryController',
+            'products' => 'ProductController',
             'attributes' => 'AttributeController',
             'attribute/families' => 'AttributeFamilyController',
             'currencies' => 'CurrencyController',

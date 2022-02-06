@@ -12,4 +12,14 @@ class AttributeFamily extends Model
     public $timestamps = false;
 
     protected $fillable = ['code', 'name', 'is_user_defined'];
+
+    protected $with = ['groups'];
+
+    /**
+     * Get the groups.
+     */
+    public function groups()
+    {
+        return $this->hasMany(AttributeGroup::class)->orderBy('position');
+    }
 }
