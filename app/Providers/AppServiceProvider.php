@@ -3,12 +3,12 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Rinvex\Attributes\Models\Attribute;
-use Rinvex\Attributes\Models\Type\Boolean;
-use Rinvex\Attributes\Models\Type\Datetime;
-use Rinvex\Attributes\Models\Type\Integer;
-use Rinvex\Attributes\Models\Type\Varchar;
-use Rinvex\Attributes\Models\Type\Text;
+// use Rinvex\Attributes\Models\Attribute;
+// use Rinvex\Attributes\Models\Type\Boolean;
+// use Rinvex\Attributes\Models\Type\Datetime;
+// use Rinvex\Attributes\Models\Type\Integer;
+// use Rinvex\Attributes\Models\Type\Varchar;
+// use Rinvex\Attributes\Models\Type\Text;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -30,12 +30,12 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
-        Attribute::typeMap([
-            'varchar' => Varchar::class,
-            'text' => Text::class,
-            'boolean' => Boolean::class,
-            'integer' => Integer::class,
-            'datetime' => Datetime::class
-        ]);
+        // Attribute::typeMap([
+        //     'varchar' => Varchar::class,
+        //     'text' => Text::class,
+        //     'boolean' => Boolean::class,
+        //     'integer' => Integer::class,
+        //     'datetime' => Datetime::class
+        // ]);
     }
 }

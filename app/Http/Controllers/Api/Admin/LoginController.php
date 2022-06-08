@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Api\Admin;
 
-use App\User;
+
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -28,6 +29,9 @@ class LoginController extends Controller
 
     function authenticated(Request $request)
     {
+
+        // return Hash::make('Password@123');
+
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
