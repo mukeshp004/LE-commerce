@@ -187,6 +187,7 @@ return [
          * Package Service Providers...
          */
         Barryvdh\Debugbar\ServiceProvider::class,
+        Prettus\Repository\Providers\RepositoryServiceProvider::class,
 
 
         /*

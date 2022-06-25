@@ -28,6 +28,7 @@ class AttributeGroupTableSeeder extends Seeder
         AttributeGroup::insert([
             [
                 'id'                  => '1',
+                'code'                => 'general',
                 'name'                => 'General',
                 'position'            => '1',
                 'is_user_defined'     => '0',
@@ -35,6 +36,7 @@ class AttributeGroupTableSeeder extends Seeder
             ],
             [
                 'id'                  => '2',
+                'code'                => 'description',
                 'name'                => 'Description',
                 'position'            => '2',
                 'is_user_defined'     => '0',
@@ -42,6 +44,7 @@ class AttributeGroupTableSeeder extends Seeder
             ],
             [
                 'id'                  => '3',
+                'code'                => 'meta_Description',
                 'name'                => 'Meta Description',
                 'position'            => '3',
                 'is_user_defined'     => '0',
@@ -49,6 +52,7 @@ class AttributeGroupTableSeeder extends Seeder
             ],
             [
                 'id'                  => '4',
+                'code'                => 'price',
                 'name'                => 'Price',
                 'position'            => '4',
                 'is_user_defined'     => '0',
@@ -56,6 +60,7 @@ class AttributeGroupTableSeeder extends Seeder
             ],
             [
                 'id'                  => '5',
+                'code'                => 'shipping',
                 'name'                => 'Shipping',
                 'position'            => '5',
                 'is_user_defined'     => '0',

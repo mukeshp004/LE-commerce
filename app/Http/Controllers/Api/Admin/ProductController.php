@@ -4,10 +4,19 @@ namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Product;
+use App\Repositories\ProductRepository;
 use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
+
+    private ProductRepository $productRepository;
+
+    function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -15,7 +24,8 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return Product::all();
+        return $this->productRepository->all();
+        // return Product::all();
     }
 
     /**
@@ -26,12 +36,18 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $product = new Product();
+        $this->validate(request(), [
+            'product_type'        => 'required',
+            'attribute_family_id' => 'required',
+            // 'sku'                 => ['required', 'unique:products,sku', new Slug],
+        ]);
 
-        $data = $request->only($product->getFillable());
+
+        $data = $request->all();
 
 
-        // $product = Product::create($data);
+        $product = $this->productRepository->create($data);
+
         return $product;
     }
 
@@ -55,7 +71,12 @@ class ProductController extends Controller
      */
     public function update(Request $request, Product $product)
     {
-        return $product->update($request->only($product->getFillable()));
+        $data = $request->all();
+        // dd($data);
+
+        // $this->productRepository->create($data);
+
+        // return $product->update($request->only($product->getFillable()));
     }
 
     /**

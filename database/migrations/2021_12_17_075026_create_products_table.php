@@ -15,17 +15,16 @@ class CreateProductsTable extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
+            $table->integer('parent_id')->unsigned()->nullable();
+            $table->foreignId('attribute_family_id')->onDelete('restrict');
             $table->string('sku')->unique();
             $table->string('type');
-            // $table->integer('parent_id')->unsigned()->nullable();
-            // $table->integer('attribute_family_id')->unsigned()->nullable();
-            // $table->foreign('attribute_family_id')->references('id')->on('attribute_families')->onDelete('restrict');
             $table->timestamps();
         });
 
         // needs to run query twice when referencing the foreign key on same table
         // Schema::table('products', function (Blueprint $table) {
-            // $table->foreign('parent_id')->references('id')->on('products')->onDelete('cascade');
+        // $table->foreign('parent_id')->references('id')->on('products')->onDelete('cascade');
         // });
 
         // Schema::create('product_categories', function (Blueprint $table) {

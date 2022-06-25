@@ -29,9 +29,6 @@ class LoginController extends Controller
 
     function authenticated(Request $request)
     {
-
-        // return Hash::make('Password@123');
-
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',

@@ -15,6 +15,7 @@ class CreateAttributeGroupsTable extends Migration
     {
         Schema::create('attribute_groups', function (Blueprint $table) {
             $table->id();
+            $table->string('code');
             $table->string('name');
             $table->integer('position');
             $table->boolean('is_user_defined')->default(1);

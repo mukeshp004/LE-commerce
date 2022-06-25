@@ -4,42 +4,42 @@ return [
     'simple'       => [
         'key'   => 'simple',
         'name'  => 'Simple',
-        'class' => 'Webkul\Product\Type\Simple',
+        'class' => 'App\Product\Type\Simple',
         'sort'  => 1,
     ],
 
     'configurable' => [
         'key'   => 'configurable',
         'name'  => 'Configurable',
-        'class' => 'Webkul\Product\Type\Configurable',
+        'class' => 'App\Product\Type\Configurable',
         'sort'  => 2,
     ],
 
     'virtual'      => [
         'key'   => 'virtual',
         'name'  => 'Virtual',
-        'class' => 'Webkul\Product\Type\Virtual',
+        'class' => 'App\Product\Type\Virtual',
         'sort'  => 3,
     ],
 
     'grouped'      => [
         'key'   => 'grouped',
         'name'  => 'Grouped',
-        'class' => 'Webkul\Product\Type\Grouped',
+        'class' => 'App\Product\Type\Grouped',
         'sort'  => 4,
     ],
 
     'downloadable' => [
         'key'   => 'downloadable',
         'name'  => 'Downloadable',
-        'class' => 'Webkul\Product\Type\Downloadable',
+        'class' => 'App\Product\Type\Downloadable',
         'sort'  => 5,
     ],
 
     'bundle'       => [
         'key'  => 'bundle',
         'name'  => 'Bundle',
-        'class' => 'Webkul\Product\Type\Bundle',
+        'class' => 'App\Product\Type\Bundle',
         'sort'  => 6,
     ]
 ];
