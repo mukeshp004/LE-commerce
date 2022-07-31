@@ -4,8 +4,4 @@ namespace App\Product\Type;
 
 class Simple extends AbstractType
 {
-    public function create()
-    {
-        return 'Simple';
-    }
 }

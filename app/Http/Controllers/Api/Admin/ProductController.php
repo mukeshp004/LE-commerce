@@ -24,7 +24,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return $this->productRepository->all();
+        return $this->productRepository->with(['attribute_family'])->all();
         // return Product::all();
     }
 
@@ -37,7 +37,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $this->validate(request(), [
-            'product_type'        => 'required',
+            'type'        => 'required',
             'attribute_family_id' => 'required',
             // 'sku'                 => ['required', 'unique:products,sku', new Slug],
         ]);
@@ -69,13 +69,22 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Product $product)
+    // public function update(Request $request, Product $product)
+    public function update(Request $request, $id)
     {
         $data = $request->all();
         // dd($data);
 
-        // $this->productRepository->create($data);
 
+        $product = $this->productRepository->findOrFail($id);
+
+        return $product->attribute_family->groups;
+
+        foreach ($product->attribute_family->groups  as $attributeGroup) {
+        }
+
+
+        $this->productRepository->update($data, $id);
         // return $product->update($request->only($product->getFillable()));
     }
 

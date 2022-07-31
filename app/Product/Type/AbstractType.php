@@ -35,7 +35,36 @@ abstract class AbstractType
         $this->productRepository = $productRepository;
     }
 
-    abstract public function create();
+    /**
+     * Create product.
+     *
+     * @param  array  $data
+     * @return \Webkul\Product\Contracts\Product
+     */
+    public function create(array $data)
+    {
+        // dd($this->productRepository->getModel());
+        // return $this->productRepository->getModel()->getFillable();
+
+        // return $data;
+        $fillableArray =  collect($data)->only($this->productRepository->getModel()->getFillable());
+        $fillableArray->put("sku", $data['general']['sku']);
+
+        return $this->productRepository->getModel()->create($fillableArray->toArray());
+    }
+
+    public function update(array $data, $id, $attribute = 'id')
+    {
+        $product = $this->productRepository->find($id);
+        // $product->update($data);
+
+
+        return $product->attribute_family->custom_attributes;
+
+        foreach ($product->attribute_family->custom_attributes as $attribute) {
+        }
+    }
+
 
     /**
      * Return true if this product can have variants.
