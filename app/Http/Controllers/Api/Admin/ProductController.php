@@ -5,7 +5,9 @@ namespace App\Http\Controllers\Api\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Product;
 use App\Repositories\ProductRepository;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -36,17 +38,20 @@ class ProductController extends Controller
      */
     public function store(Request $request)
     {
-        $this->validate(request(), [
-            'type'        => 'required',
-            'attribute_family_id' => 'required',
-            // 'sku'                 => ['required', 'unique:products,sku', new Slug],
-        ]);
+        // $this->validate(request(), [
+        // 'type'        => 'required',
+        // 'attribute_family_id' => 'required',
+        // 'sku'                 => ['required', 'unique:products,sku', new Slug],
+        // ]);
 
 
         $data = $request->all();
 
+        // dd($data);
+
 
         $product = $this->productRepository->create($data);
+
 
         return $product;
     }
@@ -57,8 +62,20 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    // public function show(Product $product)
+    public function show(int $id)
     {
+        // dd($product);
+        $product = $this->productRepository->with(['variants'])->findOrFail($id);
+
+        $response = $product->toArray();
+
+        return $response;
+
+
+        // foreach ($product->attribute_family->groups as $group) {
+        //     // array_push($product[$group->code] =
+        // }
         return $product;
     }
 
@@ -73,19 +90,42 @@ class ProductController extends Controller
     public function update(Request $request, $id)
     {
         $data = $request->all();
-        // dd($data);
 
+        dd($data);
+
+        $multiselectAttributeCodes = [];
 
         $product = $this->productRepository->findOrFail($id);
 
-        return $product->attribute_family->groups;
 
-        foreach ($product->attribute_family->groups  as $attributeGroup) {
-        }
+        // foreach ($product->attribute_family->groups  as $attributeGroup) {
+        //     // echo $attributeGroup->name . '<br/>';
+        //     $customAttributes = $product->getEditableAttributes($attributeGroup);
 
+        //     // dd($customAttributes);
 
-        $this->productRepository->update($data, $id);
-        // return $product->update($request->only($product->getFillable()));
+        //     if (count($customAttributes)) {
+        //         foreach ($customAttributes as $attribute) {
+        //             // echo $attribute->type . '<br/>';
+        //             if ($attribute->type == 'multiselect' || $attribute->type == 'checkbox') {
+        //                 array_push($multiselectAttributeCodes, $attribute->code);
+        //             }
+        //         }
+        //     }
+
+        //     // dd('$multiselectAttributeCodes', $multiselectAttributeCodes);
+
+        //     if (count($multiselectAttributeCodes)) {
+        //         foreach ($multiselectAttributeCodes as $multiselectAttributeCode) {
+        //             if (!isset($data[$multiselectAttributeCode])) {
+        //                 $data[$multiselectAttributeCode] = [];
+        //             }
+        //         }
+        //     }
+        // }
+
+        $product = $this->productRepository->update($data, $id);
+        return $product;
     }
 
     /**

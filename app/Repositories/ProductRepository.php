@@ -2,21 +2,20 @@
 
 namespace App\Repositories;
 
-use Prettus\Repository\Eloquent\BaseRepository;
 use Prettus\Repository\Criteria\RequestCriteria;
 // use App\Entities\Product;
 use App\Enums\ProductType;
+use App\Listeners\ProductFlatListener;
 use App\Models\Product;
 // use App\Product\Contracts\Product;
 use App\Validators\ProductValidator;
-use Illuminate\Support\Facades\Event;
 
 /**
  * Class ProductRepository.
  *
  * @package namespace App\Repositories;
  */
-class ProductRepository extends BaseRepository
+class ProductRepository extends Repository
 {
     /**
      * Specify Model class name
@@ -30,10 +29,16 @@ class ProductRepository extends BaseRepository
 
     public function create(array $data)
     {
+
         $productType = array_flip(Product::$PRODUCT_TYPE);
 
         $typeInstance = app(config('product_types.' . strtolower($productType[$data['type']]) . '.class'));
+
+        // dd($typeInstance);
+
         $product = $typeInstance->create($data);
+
+        // $this->update($data, $product->id);
 
         return $product;
     }
@@ -50,20 +55,21 @@ class ProductRepository extends BaseRepository
      */
     public function update(array $data, $id, $attribute = 'id')
     {
-        Event::dispatch('catalog.product.update.before', $id);
+        event('catalog.product.update.before', $id);
 
         $product = $this->find($id);
 
-
         $product = $product->getTypeInstance()->update($data, $id, $attribute);
 
-        dd($product);
 
         if (isset($data['channels'])) {
             $product['channels'] = $data['channels'];
         }
 
-        Event::dispatch('catalog.product.update.after', $product);
+        // event('catalog.product.update.after', [$product]);
+
+        // (new ProductFlatListener())->afterProductCreatedUpdated($product);
+
 
         return $product;
     }

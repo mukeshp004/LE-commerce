@@ -3,16 +3,21 @@
 namespace App\Models;
 
 use App\Product\Contracts\Product as ProductContract;
+use App\Repositories\AttributeRepository;
 use Exception;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Collection;
 
 // use Rinvex\Attributes\Traits\Attributable;
 
 class Product extends Model implements ProductContract
 {
+    use HasFactory;
+
     public static $PRODUCT_TYPE = [
         "Simple" => 1,
         'Configurable' => 2,
@@ -38,6 +43,23 @@ class Product extends Model implements ProductContract
         'sku',
         'parent_id',
     ];
+
+    /**
+     * The attributes that should be cast.
+     *
+     * @var $casts
+     */
+    protected $casts = [
+        'additional' => 'array',
+    ];
+
+
+    /**
+     * Loaded attribute values.
+     *
+     * @var array
+     */
+    public static $loadedAttributeValues = [];
 
     /**
      * Get the product that owns the product.
@@ -82,6 +104,26 @@ class Product extends Model implements ProductContract
         return $this->belongsToMany(Category::class, 'product_categories');
     }
 
+    public function getTypeText()
+    {
+        $typeText = "simple";
+        if ($this->type == 2) {
+        }
+        return $typeText;
+    }
+
+
+    public function setTypeText()
+    {
+        $typeText = "simple";
+        if ($this->type == 2) {
+        }
+        return $typeText;
+
+        $this->attributes['type_text'] = $typeText;
+    }
+
+
     /**
      * Get type instance.
      *
@@ -95,7 +137,10 @@ class Product extends Model implements ProductContract
             return $this->typeInstance;
         }
 
-        $this->typeInstance = app(config('product_types.' . $this->type . '.class'));
+
+        // $this->typeInstance = app(config('product_types.' . $this->type . '.class'));
+        // echo 'product_types.' . $this->getTypeText() . '.class';
+        $this->typeInstance = app(config('product_types.' . $this->getTypeText() . '.class'));
 
         if (!$this->typeInstance) {
             throw new Exception("Please ensure the product type '{$this->type}' is configured in your application.");
@@ -109,5 +154,176 @@ class Product extends Model implements ProductContract
     public function attribute_family(): BelongsTo
     {
         return $this->belongsTo(AttributeFamily::class);
+    }
+
+    /**
+     * Retrieve product attributes.
+     *
+     * @param  Group  $group
+     * @param  bool  $skipSuperAttribute
+     * @return \Illuminate\Support\Collection
+     *
+     * @throws \Exception
+     */
+    public function getEditableAttributes($group = null, $skipSuperAttribute = true): Collection
+    {
+        return $this->getTypeInstance()
+            ->getEditableAttributes($group, $skipSuperAttribute);
+    }
+
+    /**
+     * The super attributes that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function super_attributes(): BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class, 'product_super_attributes');
+    }
+
+    /**
+     * Get the product attribute values that owns the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function attribute_values(): HasMany
+    {
+        return $this->hasMany(ProductAttributeValue::class);
+    }
+
+    /**
+     * Return the product attribute.
+     *
+     * @return self
+     */
+    public function getProductAttribute()
+    {
+        return $this;
+    }
+
+
+    /**
+     * Get an attribute from the model.
+     *
+     * @param  string  $key
+     * @return mixed
+     */
+    public function getAttribute($key)
+    {
+        if (
+            !method_exists(static::class, $key)
+            && !in_array($key, [
+                'pivot',
+                'parent_id',
+                'attribute_family_id',
+            ])
+            && !isset($this->attributes[$key])
+        ) {
+            if (isset($this->id)) {
+                $this->attributes[$key] = '';
+
+                $attribute = app(AttributeRepository::class)
+                    ->getAttributeByCode($key);
+
+                $this->attributes[$key] = $this->getCustomAttributeValue($attribute);
+
+                return $this->getAttributeValue($key);
+            }
+        }
+
+        return parent::getAttribute($key);
+    }
+
+    /**
+     * Get an product attribute value.
+     *
+     * @return mixed
+     */
+    public function getCustomAttributeValue($attribute)
+    {
+        if (!$attribute) {
+            return;
+        }
+
+        // $locale = core()->checkRequestedLocaleCodeInRequestedChannel();
+        // $channel = core()->getRequestedChannelCode();
+
+        if (
+            array_key_exists($this->id, self::$loadedAttributeValues)
+            && array_key_exists($attribute->id, self::$loadedAttributeValues[$this->id])
+        ) {
+            return self::$loadedAttributeValues[$this->id][$attribute->id];
+        }
+
+        // if ($attribute->value_per_channel) {
+        //     if ($attribute->value_per_locale) {
+        //         $attributeValue = $this->attribute_values()
+        //             ->where('channel', $channel)
+        //             ->where('locale', $locale)
+        //             ->where('attribute_id', $attribute->id)
+        //             ->first();
+        //     } else {
+        //         $attributeValue = $this->attribute_values()
+        //             ->where('channel', $channel)
+        //             ->where('attribute_id', $attribute->id)
+        //             ->first();
+        //     }
+        // } else {
+        // if ($attribute->value_per_locale) {
+        //     $attributeValue = $this->attribute_values()
+        //         ->where('locale', $locale)
+        //         ->where('attribute_id', $attribute->id)
+        //         ->first();
+        // } else {
+        $attributeValue = $this->attribute_values()
+            ->where('attribute_id', $attribute->id)
+            ->first();
+        // }
+        // }
+
+        return self::$loadedAttributeValues[$this->id][$attribute->id] = $attributeValue[ProductAttributeValue::$attributeTypeFields[$attribute->type]] ?? null;
+    }
+
+    /**
+     * Attributes to array.
+     *
+     * @return array
+     */
+    public function attributesToArray(): array
+    {
+        $attributes = parent::attributesToArray();
+
+        $hiddenAttributes = $this->getHidden();
+
+        if (isset($this->id)) {
+            $familyAttributes = $this->checkInLoadedFamilyAttributes();
+
+            foreach ($familyAttributes as $attribute) {
+                if (in_array($attribute->code, $hiddenAttributes)) {
+                    continue;
+                }
+
+                $attributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
+            }
+        }
+
+        return $attributes;
+    }
+
+    /**
+     * Check in loaded family attributes.
+     *
+     * @return object
+     */
+    public function checkInLoadedFamilyAttributes(): object
+    {
+        static $loadedFamilyAttributes = [];
+
+        if (array_key_exists($this->attribute_family_id, $loadedFamilyAttributes)) {
+            return $loadedFamilyAttributes[$this->attribute_family_id];
+        }
+
+        return $loadedFamilyAttributes[$this->attribute_family_id] = app(AttributeRepository::class)
+            ->getFamilyAttributes($this->attribute_family);
     }
 }
