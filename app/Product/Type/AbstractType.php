@@ -103,6 +103,7 @@ abstract class AbstractType
             }
         }
 
+        // dd('===$attributes', $attributes);
 
         foreach ($product->attribute_family->custom_attributes as $key => $attribute) {
 

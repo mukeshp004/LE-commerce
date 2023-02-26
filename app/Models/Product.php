@@ -12,8 +12,6 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 
-// use Rinvex\Attributes\Traits\Attributable;
-
 class Product extends Model implements ProductContract
 {
     use HasFactory;
@@ -28,9 +26,6 @@ class Product extends Model implements ProductContract
         'BUNDLE' => 7,
         'GIFT_CARD' => 8,
     ];
-    // use Attributable;
-
-    // protected $with = ['eav'];
 
     /**
      * The attributes that are mass assignable.
@@ -53,6 +48,14 @@ class Product extends Model implements ProductContract
         'additional' => 'array',
     ];
 
+    /**
+     * The type of product.
+     *
+     * @var \Webkul\Product\Type\AbstractType
+     */
+    protected $typeInstance;
+
+    protected $with = [];
 
     /**
      * Loaded attribute values.
@@ -106,8 +109,15 @@ class Product extends Model implements ProductContract
 
     public function getTypeText()
     {
-        $typeText = "simple";
+
+        $typeText = collect(Product::$PRODUCT_TYPE)->flip()->get($this->type);
+
+        // dd($typeText);
+        // dd(strtolower($typeText));
+
+        // $typeText = "simple";
         if ($this->type == 2) {
+            $typeText = 'configurable';
         }
         return $typeText;
     }
@@ -115,10 +125,15 @@ class Product extends Model implements ProductContract
 
     public function setTypeText()
     {
-        $typeText = "simple";
-        if ($this->type == 2) {
-        }
-        return $typeText;
+        // dd($this->type);
+        $typeText = collect($this->attributes['type_text'])->flip()->get($this->type);
+
+        // dd($typeText);
+
+        // $typeText = "simple";
+        // if ($this->type == 2) {
+        // }
+        // return $typeText;
 
         $this->attributes['type_text'] = $typeText;
     }
@@ -146,6 +161,7 @@ class Product extends Model implements ProductContract
             throw new Exception("Please ensure the product type '{$this->type}' is configured in your application.");
         }
 
+        // dd('$this->typeInstance', $this->typeInstance);
         $this->typeInstance->setProduct($this);
 
         return $this->typeInstance;
@@ -293,19 +309,52 @@ class Product extends Model implements ProductContract
     {
         $attributes = parent::attributesToArray();
 
+
+        // dd('attribute', $attributes);
+
         $hiddenAttributes = $this->getHidden();
 
         if (isset($this->id)) {
-            $familyAttributes = $this->checkInLoadedFamilyAttributes();
+            $groups = $this->attribute_family->groups;
 
-            foreach ($familyAttributes as $attribute) {
-                if (in_array($attribute->code, $hiddenAttributes)) {
-                    continue;
+            foreach ($groups as $group) {
+                $familyAttributes = $group->attributes()->get();
+                // dd($familyAttributes);
+
+                $tmpAttributes = [];
+                foreach ($familyAttributes as $attribute) {
+                    if (in_array($attribute->code, $hiddenAttributes)) {
+                        continue;
+                    }
+
+
+                    $tmpAttributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
                 }
 
-                $attributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
+                $attributes[$group->code] = $tmpAttributes;
             }
         }
+
+        // dd('attribute', $attributes);
+
+
+        // if (isset($this->id)) {
+        //     $familyAttributes = $this->checkInLoadedFamilyAttributes();
+
+        //     // dd($familyAttributes->toArray());
+
+        //     foreach ($familyAttributes as $attribute) {
+        //         if (in_array($attribute->code, $hiddenAttributes)) {
+        //             continue;
+        //         }
+
+        //         // dump();
+
+        //         $attributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
+        //     }
+        // }
+
+
 
         return $attributes;
     }

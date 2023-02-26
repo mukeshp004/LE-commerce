@@ -26,7 +26,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return $this->productRepository->with(['attribute_family'])->all();
+        return $this->productRepository->all();
         // return Product::all();
     }
 
@@ -47,8 +47,6 @@ class ProductController extends Controller
 
         $data = $request->all();
 
-        // dd($data);
-
 
         $product = $this->productRepository->create($data);
 
@@ -65,9 +63,13 @@ class ProductController extends Controller
     // public function show(Product $product)
     public function show(int $id)
     {
-        // dd($product);
         $product = $this->productRepository->with(['variants'])->findOrFail($id);
 
+
+        $productArray = $product->toArray();
+
+
+        $product->name = $productArray['general']['name'];
         $response = $product->toArray();
 
         return $response;
@@ -91,18 +93,20 @@ class ProductController extends Controller
     {
         $data = $request->all();
 
-        dd($data);
 
         $multiselectAttributeCodes = [];
 
+        // dd(Product::findOrFail($id)->toArray());
+
         $product = $this->productRepository->findOrFail($id);
+
+        // return $product;
 
 
         // foreach ($product->attribute_family->groups  as $attributeGroup) {
         //     // echo $attributeGroup->name . '<br/>';
         //     $customAttributes = $product->getEditableAttributes($attributeGroup);
 
-        //     // dd($customAttributes);
 
         //     if (count($customAttributes)) {
         //         foreach ($customAttributes as $attribute) {
@@ -113,7 +117,6 @@ class ProductController extends Controller
         //         }
         //     }
 
-        //     // dd('$multiselectAttributeCodes', $multiselectAttributeCodes);
 
         //     if (count($multiselectAttributeCodes)) {
         //         foreach ($multiselectAttributeCodes as $multiselectAttributeCode) {

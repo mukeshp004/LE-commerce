@@ -72,6 +72,16 @@ class ProductFlat extends Model
     }
 
     /**
+     * Get product type value from base product.
+     *
+     * @return string
+     */
+    public function getTypeAttribute()
+    {
+        return $this->product->type;
+    }
+
+    /**
      * Get the product attribute family that owns the product.
      *
      * @return \Webkul\Attribute\Models\AttributeFamily

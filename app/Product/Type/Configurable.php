@@ -175,5 +175,7 @@ class Configurable extends AbstractType
         $product = parent::update($data, $id, $attribute);
 
         $this->updateDefaultVariantId();
+
+        return $product;
     }
 }
