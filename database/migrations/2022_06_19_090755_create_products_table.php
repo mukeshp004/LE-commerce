@@ -49,6 +49,17 @@ class CreateProductsTable extends Migration
             // $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('restrict');
         });
 
+        Schema::create('product_super_attribute_values', function (Blueprint $table) {
+            $table->foreignId('product_id')->onDelete('cascade');
+            $table->foreignId('attribute_id')->onDelete('restrict');
+            $table->foreignId('option_id')->onDelete('cascade');
+
+            // $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');
+            // $table->foreign('attribute_id')->references('id')->on('attributes')->onDelete('restrict');
+        });
+
+        
+
         // Schema::create('product_up_sells', function (Blueprint $table) {
         //     $table->integer('parent_id')->unsigned();
         //     $table->integer('child_id')->unsigned();
@@ -76,6 +87,7 @@ class CreateProductsTable extends Migration
         // Schema::dropIfExists('product_up_sells');
 
         Schema::dropIfExists('product_super_attributes');
+        Schema::dropIfExists('product_super_attribute_values');
 
         // Schema::dropIfExists('product_relations');
 

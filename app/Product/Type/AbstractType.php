@@ -6,6 +6,7 @@ use App\Models\ProductAttributeValue;
 use App\Repositories\AttributeRepository;
 use App\Repositories\ProductAttributeValueRepository;
 use App\Repositories\ProductRepository;
+use Illuminate\Support\Facades\Storage;
 
 abstract class AbstractType
 {
@@ -45,6 +46,31 @@ abstract class AbstractType
      * @var bool
      */
     protected $hasVariants = false;
+
+
+
+    /**
+     * Is product have sufficient quantity.
+     *
+     * @var bool
+     */
+    protected $haveSufficientQuantity = true;
+
+
+    /**
+     * Is a stockable product type.
+     *
+     * @var bool
+     */
+    protected $isStockable = true;
+
+    /**
+     * Product children price can be calculated or not.
+     *
+     * @var bool
+     */
+    protected $isChildrenCalculated = false;
+
 
 
     /**
@@ -103,34 +129,30 @@ abstract class AbstractType
             }
         }
 
-        // dd('===$attributes', $attributes);
-
         foreach ($product->attribute_family->custom_attributes as $key => $attribute) {
 
-            // echo $attribute->type . '<br/>';
+            if ($attribute->type === 'boolean') {
+                $data[$attribute->code] = isset($data[$attribute->code]) && $data[$attribute->code] ? 1 : 0;
+            }
 
-            // if ($attribute->type === 'boolean') {
-            //     echo $attribute->type . ' ' . $attribute->code . '<br/>';
 
-            //     $data[$attribute->code] = isset($data[$attribute->code]) && $data[$attribute->code] ? 1 : 0;
-            // }
+            if ($attribute->type === 'multiselect' || $attribute->type === 'checkbox') {
+                $data[$attribute->code] = isset($data[$attribute->code]) ? implode(',', $data[$attribute->code]) : null;
+            }
+
 
             if (!$attributes->has($attribute->code)) {
                 continue;
             }
 
-            // if ($attribute->type === 'price' && isset($data[$attribute->code]) && $data[$attribute->code] === '') {
-            //     $data[$attribute->code] = null;
-            // }
-
-            // // if ($attribute->type === 'date' && $data[$attribute->code] === '' && $route !== 'admin.catalog.products.massupdate') {
-            // if ($attribute->type === 'date' && $data[$attribute->code] === '') {
-            //     $data[$attribute->code] = null;
-            // }
-
-            if ($attribute->type === 'multiselect' || $attribute->type === 'checkbox') {
-                $data[$attribute->code] = implode(',', $data[$attribute->code]);
+            if ($attribute->type === 'price' && $attributes->has($attribute->code) && $attributes->get($attribute->code, '') === '') {
+                $data[$attribute->code] = null;
             }
+
+            // if ($attribute->type === 'date' && $data[$attribute->code] === '' /* && $route !== 'admin.catalog.products.massupdate' */) {
+            //     $data[$attribute->code] = null;
+            // }
+
 
             if ($attribute->type === 'image' || $attribute->type === 'file') {
                 $data[$attribute->code] = gettype($data[$attribute->code]) === 'object'
@@ -138,41 +160,63 @@ abstract class AbstractType
                     : null;
             }
 
-            $attributeValue = $this->attributeValueRepository->findOneWhere([
+            $productAttributeValue = $this->attributeValueRepository->findOneWhere([
                 'product_id'   => $product->id,
                 'attribute_id' => $attribute->id,
                 'channel'      => $attribute->value_per_channel ? (isset($data['channel']) ? $data['channel'] : null) : null,
                 'locale'       => $attribute->value_per_locale ? (isset($data['locale'])  ? $data['locale'] : null) : null,
             ]);
 
-            // dd($attributeValue);
 
-            if (!$attributeValue) {
+            $columnName = ProductAttributeValue::$attributeTypeFields[$attribute->type];
+
+            // This will create product attribute if not exist
+            if (!$productAttributeValue) {
                 $attrValueData = [
                     'product_id'   => $product->id,
                     'attribute_id' => $attribute->id,
-                    'value'        => $attributes->get($attribute->code),
+                    $columnName    => $attributes->get($attribute->code),
+                    // 'value'         => $attributes->get($attribute->code),
                     'channel'      => $attribute->value_per_channel ? (isset($data['channel']) ? $data['channel'] : null) : null,
                     'locale'       => $attribute->value_per_locale ? (isset($data['locale'])  ? $data['locale'] : null) : null,
                 ];
 
                 $this->attributeValueRepository->create($attrValueData);
-            } else {
 
-                if ($attribute->code == 'featured') {
-                    // dd($attribute);
-                }
-                $this->attributeValueRepository->update([
-                    ProductAttributeValue::$attributeTypeFields[$attribute->type] => $attributes->get($attribute->code),
-                ], $attributeValue->id);
+                // else will update product attribute
+            } else {
+                $productAttributeValue->update([$columnName => $attributes->get($attribute->code)]);
 
                 if ($attribute->type == 'image' || $attribute->type == 'file') {
-                    // Storage::delete($attributeValue->text_value);
+                    Storage::delete($productAttributeValue->text_value);
                 }
             }
         }
 
-        // dd('AbtractType::class', $data);
+        // if ($route !== 'admin.catalog.products.massupdate') {
+        //     if (! isset($data['categories'])) {
+        //         $data['categories'] = [];
+        //     }
+
+        //     $product->categories()->sync($data['categories']);
+
+        //     $product->up_sells()->sync($data['up_sell'] ?? []);
+
+        //     $product->cross_sells()->sync($data['cross_sell'] ?? []);
+
+        //     $product->related_products()->sync($data['related_products'] ?? []);
+
+        //     $this->productInventoryRepository->saveInventories($data, $product);
+
+        //     $this->productImageRepository->uploadImages($data, $product);
+
+        //     $this->productVideoRepository->uploadVideos($data, $product);
+
+        //     app(ProductCustomerGroupPriceRepository::class)->saveCustomerGroupPrices(
+        //         $data,
+        //         $product
+        //     );
+        // }
 
         return $product;
     }
@@ -200,6 +244,28 @@ abstract class AbstractType
     {
         return $this->hasVariants;
     }
+
+    /**
+     * Product children price can be calculated or not.
+     *
+     * @return bool
+     */
+    public function isChildrenCalculated()
+    {
+        return $this->isChildrenCalculated;
+    }
+
+    /**
+     * Have sufficient quantity.
+     *
+     * @param  int  $qty
+     * @return bool
+     */
+    public function haveSufficientQuantity(int $qty): bool
+    {
+        return $this->haveSufficientQuantity;
+    }
+
 
     /**
      * Retrieve product attributes.

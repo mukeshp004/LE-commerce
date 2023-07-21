@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Listeners\ProductFlatListener;
 use App\Models\Product;
+use App\Models\ProductSuperAttributeValue;
 use App\Repositories\ProductRepository;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
@@ -47,10 +49,10 @@ class ProductController extends Controller
 
         $data = $request->all();
 
-
         $product = $this->productRepository->create($data);
 
-
+        // app(ProductFlatListener::class)->afterProductCreatedUpdated($product);
+        
         return $product;
     }
 
@@ -63,11 +65,22 @@ class ProductController extends Controller
     // public function show(Product $product)
     public function show(int $id)
     {
-        $product = $this->productRepository->with(['variants'])->findOrFail($id);
+        $product = $this->productRepository->with(['variants', /*'super_attributes',*/ 'super_attribute_values'])->findOrFail($id);
+
+        $pav = ProductSuperAttributeValue::select(['attribute_id', 'option_id'])->where('product_id', $product->id)->get();
+        if($pav) {
+            // $pav = $pav->groupBy('attribute_id');
+            $pav = $pav->mapToGroups(function ( $item, int $key) {
+                return [$item['attribute_id'] => $item['option_id']];
+            });
+
+            $product['super_attributes'] = $pav;
+        }
 
 
         $productArray = $product->toArray();
 
+        
 
         $product->name = $productArray['general']['name'];
         $response = $product->toArray();
@@ -75,9 +88,6 @@ class ProductController extends Controller
         return $response;
 
 
-        // foreach ($product->attribute_family->groups as $group) {
-        //     // array_push($product[$group->code] =
-        // }
         return $product;
     }
 
@@ -91,43 +101,19 @@ class ProductController extends Controller
     // public function update(Request $request, Product $product)
     public function update(Request $request, $id)
     {
-        $data = $request->all();
 
-
-        $multiselectAttributeCodes = [];
+        event('catalog.product.update.before', $id);
 
         // dd(Product::findOrFail($id)->toArray());
+        // dd(request()->all());
 
         $product = $this->productRepository->findOrFail($id);
 
-        // return $product;
+        $product = $this->productRepository->update($request->all(), $id);
 
+        // event('catalog.product.update.after', $product);
+        app(ProductFlatListener::class)->afterProductCreatedUpdated($product);
 
-        // foreach ($product->attribute_family->groups  as $attributeGroup) {
-        //     // echo $attributeGroup->name . '<br/>';
-        //     $customAttributes = $product->getEditableAttributes($attributeGroup);
-
-
-        //     if (count($customAttributes)) {
-        //         foreach ($customAttributes as $attribute) {
-        //             // echo $attribute->type . '<br/>';
-        //             if ($attribute->type == 'multiselect' || $attribute->type == 'checkbox') {
-        //                 array_push($multiselectAttributeCodes, $attribute->code);
-        //             }
-        //         }
-        //     }
-
-
-        //     if (count($multiselectAttributeCodes)) {
-        //         foreach ($multiselectAttributeCodes as $multiselectAttributeCode) {
-        //             if (!isset($data[$multiselectAttributeCode])) {
-        //                 $data[$multiselectAttributeCode] = [];
-        //             }
-        //         }
-        //     }
-        // }
-
-        $product = $this->productRepository->update($data, $id);
         return $product;
     }
 

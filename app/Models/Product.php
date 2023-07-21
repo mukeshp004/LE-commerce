@@ -197,6 +197,12 @@ class Product extends Model implements ProductContract
         return $this->belongsToMany(Attribute::class, 'product_super_attributes');
     }
 
+    public function super_attribute_values(): BelongsToMany
+    {
+        return $this->belongsToMany(Attribute::class, 'product_super_attribute_values')->withPivot('option_id');
+    }
+
+
     /**
      * Get the product attribute values that owns the product.
      *
@@ -329,8 +335,16 @@ class Product extends Model implements ProductContract
 
 
                     $tmpAttributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
+                    
+                    /**
+                     * This will set directly on payment pojo with groups
+                     */
+                    $attributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
                 }
 
+                /**
+                 * this will stamp attribute and attribute value with group
+                 */
                 $attributes[$group->code] = $tmpAttributes;
             }
         }

@@ -2,6 +2,8 @@
 
 namespace App\Listeners;
 
+use App\Models\ProductAttributeValue;
+use App\Repositories\AttributeOptionRepository;
 use App\Repositories\AttributeRepository;
 use App\Repositories\ProductAttributeValueRepository;
 use App\Repositories\ProductFlatRepository;
@@ -60,6 +62,7 @@ class ProductFlatListener
      */
     public function __construct(
         protected AttributeRepository $attributeRepository,
+        protected AttributeOptionRepository $attributeOptionRepository,
         protected ProductFlatRepository $productFlatRepository,
         protected ProductAttributeValueRepository $productAttributeValueRepository
     ) {
@@ -92,14 +95,11 @@ class ProductFlatListener
 
         static $superAttributes = [];
 
-        // dd('$product', $product);
         // dd('ProductFlatListener $product', $product);
 
         if (!array_key_exists($product->attribute_family_id, $familyAttributes)) {
             $familyAttributes[$product->attribute_family_id] = $product->attribute_family->custom_attributes;
         }
-
-        // dd('$familyAttributes', $familyAttributes);
 
         if (
             $parentProduct
@@ -108,9 +108,9 @@ class ProductFlatListener
             $superAttributes[$parentProduct->id] = $parentProduct->super_attributes()->pluck('code')->toArray();
         }
 
+
         $attributeValues = $product->attribute_values()->get();
 
-        // dd('$product', $product);
         DB::enableQueryLog();
         $productFlat = $this->productFlatRepository->updateOrCreate([
             'product_id' => $product->id,
@@ -125,9 +125,6 @@ class ProductFlatListener
 
 
         foreach ($familyAttributes[$product->attribute_family_id] as $attribute) {
-            dump($attribute->code);
-            // dump(array_merge($superAttributes[$parentProduct->id], $this->fillableAttributeCodes));
-
             if (
                 ($parentProduct
                     && !in_array($attribute->code, array_merge($superAttributes[$parentProduct->id], $this->fillableAttributeCodes))
@@ -137,6 +134,124 @@ class ProductFlatListener
             ) {
                 continue;
             }
+
+            $attributes = collect([]);
+
+            foreach ($product->attribute_family->groups as $group) {
+                if (isset($data[$group->code])) {
+
+                    foreach ($data[$group->code] as $key => $attribute) {
+                        $attributes->put($key, $attribute);
+                    }
+                }
+            }
+
+
+            // if ($attribute->value_per_channel) {
+            //     if ($attribute->value_per_locale) {
+            //         $productAttributeValue = $attributeValues
+            //             ->where('channel', $channel->code)
+            //             ->where('locale', $locale->code)
+            //             ->where('attribute_id', $attribute->id)
+            //             ->first();
+            //     } else {
+            //         $productAttributeValue = $attributeValues
+            //             ->where('channel', $channel->code)
+            //             ->where('attribute_id', $attribute->id)
+            //             ->first();
+            //     }
+            // } else {
+            if ($attribute->value_per_locale) {
+                $productAttributeValue = $attributeValues
+                    ->where('locale', 'en')
+                    ->where('attribute_id', $attribute->id)
+                    ->first();
+            } else {
+                $productAttributeValue = $attributeValues
+                    ->where('attribute_id', $attribute->id)
+                    ->first();
+            }
+            // }
+
+            /**
+             * assigns the product attribute value to flat product
+             */
+            $productFlat->{$attribute->code} = $productAttributeValue[ProductAttributeValue::$attributeTypeFields[$attribute->type]] ?? null;
+
+            if ($attribute->type == 'select') {
+                $attributeOption = $this->getAttributeOptions($productFlat->{$attribute->code});
+
+                if ($attributeOption) {
+                    if ($attributeOptionTranslation = $attributeOption->translate(/*$locale->code*/'en')) {
+                        $productFlat->{$attribute->code . '_label'} = $attributeOptionTranslation->label;
+                    } else {
+                        $productFlat->{$attribute->code . '_label'} = $attributeOption->admin_name;
+                    }
+                }
+            } elseif ($attribute->type == 'multiselect') {
+                $attributeOptionIds = explode(',', $productFlat->{$attribute->code});
+
+                if (count($attributeOptionIds)) {
+                    $attributeOptions = $this->getAttributeOptions($productFlat->{$attribute->code});
+
+                    $optionLabels = [];
+
+                    foreach ($attributeOptions as $attributeOption) {
+                        if ($attributeOptionTranslation = $attributeOption->translate(/*$locale->code*/'en')) {
+                            $optionLabels[] = $attributeOptionTranslation->label;
+                        } else {
+                            $optionLabels[] = $attributeOption->admin_name;
+                        }
+                    }
+
+                    $productFlat->{$attribute->code . '_label'} = implode(', ', $optionLabels);
+                }
+            }
+        } //end  of familyAttribute loop
+
+
+        // $productFlat->min_price = $product->getTypeInstance()->getMinimalPrice();
+
+        // $productFlat->max_price = $product->getTypeInstance()->getMaximumPrice();
+
+        if ($parentProduct) {
+            $parentProductFlat = $this->productFlatRepository->findOneWhere([
+                'product_id' => $parentProduct->id,
+                'channel'    => /* $channel->code*/ null,
+                'locale'     => /* $locale->code */ 'en',
+            ]);
+
+            if ($parentProductFlat) {
+                $productFlat->parent_id = $parentProductFlat->id;
+            }
+        }
+
+        $productFlat->save();
+    }
+
+
+    /**
+     * @param  string  $value
+     * @return mixed
+     */
+    public function getAttributeOptions($value)
+    {
+        if (!$value) {
+            return;
+        }
+
+        static $attributeOptions = [];
+
+        if (array_key_exists($value, $attributeOptions)) {
+            return $attributeOptions[$value];
+        }
+
+        if (is_numeric($value)) {
+            return $attributeOptions[$value] = $this->attributeOptionRepository->find($value);
+        } else {
+            $attributeOptionIds = explode(',', $value);
+
+            return $attributeOptions[$value] = $this->attributeOptionRepository->findWhereIn('id', $attributeOptionIds);
         }
     }
 }

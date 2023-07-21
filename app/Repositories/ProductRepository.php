@@ -35,8 +35,6 @@ class ProductRepository extends Repository
 
         $typeInstance = app(config('product_types.' . strtolower($productType[$data['type']]) . '.class'));
 
-        // dd($typeInstance);
-
         $product = $typeInstance->create($data);
 
         $product = $this->update($data, $product->id);
@@ -54,29 +52,14 @@ class ProductRepository extends Repository
      */
     public function update(array $data, $id, $attribute = 'id')
     {
-        event('catalog.product.update.before', $id);
-
-        $product = $this->find($id);
-
-
-        // return $product;
-        // dd('$product before update', $product);
+        $product = $this->findOrFail($id);
 
         $product = $product->getTypeInstance()->update($data, $id, $attribute);
-
-        // dd('$product After update', $product);
 
 
         if (isset($data['channels'])) {
             $product['channels'] = $data['channels'];
         }
-
-        // dd('ProductRepository $product', $product);
-        // event('catalog.product.update.after', [$product]);
-
-        // dd(app(ProductFlatListener::class));
-        (app(ProductFlatListener::class))->afterProductCreatedUpdated($product);
-
 
         return $product;
     }
