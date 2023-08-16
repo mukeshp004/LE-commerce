@@ -2,4 +2,4 @@ truncate TABLE products;
 truncate TABLE product_flats;
 truncate TABLE product_attribute_values;
 truncate TABLE product_super_attributes;
-truncate TABLE product_super_attribute_options;
+truncate TABLE product_super_attribute_values;
