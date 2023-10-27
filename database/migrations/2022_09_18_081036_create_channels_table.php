@@ -14,27 +14,22 @@ return new class extends Migration
     public function up()
     {
         Schema::create('channels', function (Blueprint $table) {
-            $table->increments('id');
+            $table->id();
+            
             $table->string('code');
+            $table->string('name');
+            $table->text('description')->nullable();
             $table->string('timezone')->nullable();
             $table->string('theme')->nullable();
             $table->string('hostname')->nullable();
             $table->string('logo')->nullable();
             $table->string('favicon')->nullable();
+            $table->text('home_page_content')->nullable();
+            $table->text('footer_content')->nullable();
 
-            $table->boolean('is_maintenance_on')->default(0);
-            $table->text('allowed_ips')->nullable();
+            $table->foreignId('locale_id')->onDelete('cascade');
+            $table->foreignId('currency_id')->onDelete('cascade');
 
-
-            $table->unsignedBigInteger('default_locale_id');
-            $table->unsignedBigInteger('base_currency_id');
-
-            $table->unsignedBigInteger('root_category_id')->nullable();
-
-            $table->foreign('root_category_id')->references('id')->on('categories')->onDelete('set null');
-
-            $table->foreign('default_locale_id')->references('id')->on('locales')->onDelete('cascade');
-            $table->foreign('base_currency_id')->references('id')->on('currencies')->onDelete('cascade');
             $table->timestamps();
         });
 
@@ -60,9 +55,7 @@ return new class extends Migration
     public function down()
     {
         Schema::dropIfExists('channel_currencies');
-
         Schema::dropIfExists('channel_locales');
-
         Schema::dropIfExists('channels');
     }
 };

@@ -34,6 +34,7 @@ Route::middleware('auth:sanctum')->group(function () {
             'attribute/families' => 'AttributeFamilyController',
             'currencies' => 'CurrencyController',
             'stores' => 'StoreController',
+            'inventory-source' => 'InventorySourceController',
         ]);
     });
 });

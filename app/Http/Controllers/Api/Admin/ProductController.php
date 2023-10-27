@@ -28,7 +28,7 @@ class ProductController extends Controller
      */
     public function index()
     {
-        return $this->productRepository->all();
+        return $this->productRepository->with(['inventory_sources'])->all();
         // return Product::all();
     }
 
@@ -52,7 +52,7 @@ class ProductController extends Controller
         $product = $this->productRepository->create($data);
 
         // app(ProductFlatListener::class)->afterProductCreatedUpdated($product);
-        
+
         return $product;
     }
 
@@ -65,24 +65,29 @@ class ProductController extends Controller
     // public function show(Product $product)
     public function show(int $id)
     {
-        $product = $this->productRepository->with(['variants', /*'super_attributes',*/ 'super_attribute_values'])->findOrFail($id);
+        $product = $this->productRepository->with([
+            'variants',
+            /*'super_attributes',*/
+            'super_attribute_values',
+            'inventories'
+        ])->findOrFail($id);
 
         $pav = ProductSuperAttributeValue::select(['attribute_id', 'option_id'])->where('product_id', $product->id)->get();
-        if($pav) {
+        
+        if ($pav) {
             // $pav = $pav->groupBy('attribute_id');
-            $pav = $pav->mapToGroups(function ( $item, int $key) {
+            $pav = $pav->mapToGroups(function ($item, int $key) {
                 return [$item['attribute_id'] => $item['option_id']];
             });
 
             $product['super_attributes'] = $pav;
         }
 
-
         $productArray = $product->toArray();
 
-        
 
-        $product->name = $productArray['general']['name'];
+
+        // $product->name = $productArray['general']['name'];
         $response = $product->toArray();
 
         return $response;
@@ -105,6 +110,7 @@ class ProductController extends Controller
         event('catalog.product.update.before', $id);
 
         // dd(Product::findOrFail($id)->toArray());
+        // return request()->all();
         // dd(request()->all());
 
         $product = $this->productRepository->findOrFail($id);

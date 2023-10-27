@@ -5,32 +5,13 @@ namespace App\Product\Type;
 use App\Models\ProductAttributeValue;
 use App\Repositories\AttributeRepository;
 use App\Repositories\ProductAttributeValueRepository;
+use App\Repositories\ProductInventoryRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\Storage;
 
 abstract class AbstractType
 {
-    /**
-     * Attribute repository instance.
-     *
-     * @var \Webkul\Attribute\Repositories\AttributeRepository
-     */
-    protected $attributeRepository;
-
-    /**
-     * Product repository instance.
-     *
-     * @var \Webkul\Product\Repositories\ProductRepository
-     */
-    protected $productRepository;
-
-    /**
-     * Product attribute value repository instance.
-     *
-     * @var \Webkul\Product\Repositories\ProductAttributeValueRepository
-     */
-    protected $attributeValueRepository;
-
+    
 
     /**
      * Product instance.
@@ -82,15 +63,26 @@ abstract class AbstractType
 
 
 
+    /**
+     * 
+     * Create a new product type instance.
+     * 
+     * @param  App\Repositories\AttributeRepository  $attributeRepository
+     * @param  App\Repositories\ProductRepository   $productRepository
+     * @param  App\Repositories\ProductAttributeValueRepository  $attributeValueRepository
+     * @param  App\Repositories\ProductInventoryRepository  $productInventoryRepository
+     * @param  App\Repositories\ProductImageRepository  $productImageRepository
+     * @param  App\Repositories\ProductVideoRepository  $productVideoRepository
+     */
     public function __construct(
-        AttributeRepository $attributeRepository,
-        ProductRepository $productRepository,
-        ProductAttributeValueRepository $attributeValueRepository,
+        protected AttributeRepository $attributeRepository,
+        protected ProductRepository $productRepository,
+        protected ProductAttributeValueRepository $attributeValueRepository,
+        protected ProductInventoryRepository $productInventoryRepository,
+        // protected ProductImageRepository $productImageRepository,
+        // protected ProductVideoRepository $productVideoRepository
 
     ) {
-        $this->attributeRepository = $attributeRepository;
-        $this->productRepository = $productRepository;
-        $this->attributeValueRepository = $attributeValueRepository;
     }
 
     /**
@@ -106,7 +98,7 @@ abstract class AbstractType
 
         // return $data;
         $fillableArray =  collect($data)->only($this->productRepository->getModel()->getFillable());
-        $fillableArray->put("sku", $data['general']['sku']);
+        $fillableArray->put("sku", $data['sku']);
 
         return $this->productRepository->getModel()->create($fillableArray->toArray());
     }
@@ -118,16 +110,16 @@ abstract class AbstractType
 
         // dd('AbstractType Data', $data);
 
-        $attributes = collect([]);
+        $attributes = collect($data)->except(['variants', 'meta_description', 'inventory']);
 
-        foreach ($product->attribute_family->groups as $group) {
-            if (isset($data[$group->code])) {
+        // foreach ($product->attribute_family->groups as $group) {
+        //     if (isset($data[$group->code])) {
 
-                foreach ($data[$group->code] as $key => $attribute) {
-                    $attributes->put($key, $attribute);
-                }
-            }
-        }
+        //         foreach ($data[$group->code] as $key => $attribute) {
+        //             $attributes->put($key, $attribute);
+        //         }
+        //     }
+        // }
 
         foreach ($product->attribute_family->custom_attributes as $key => $attribute) {
 
@@ -205,8 +197,8 @@ abstract class AbstractType
         //     $product->cross_sells()->sync($data['cross_sell'] ?? []);
 
         //     $product->related_products()->sync($data['related_products'] ?? []);
-
-        //     $this->productInventoryRepository->saveInventories($data, $product);
+            
+            $this->productInventoryRepository->saveInventories($data, $product);
 
         //     $this->productImageRepository->uploadImages($data, $product);
 

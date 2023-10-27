@@ -61,7 +61,7 @@ class Configurable extends AbstractType
     public function create(array $data)
     {
         $fillableArray =  collect($data)->only($this->productRepository->getModel()->getFillable());
-        $fillableArray->put("sku", $data['general']['sku']);
+        // $fillableArray->put("sku", $data['sku']);
         
 
         $product = $this->productRepository->getModel()->create($fillableArray->toArray());
@@ -335,7 +335,7 @@ class Configurable extends AbstractType
             }
         }
 
-        // $this->productInventoryRepository->saveInventories($data, $variant);
+        $this->productInventoryRepository->saveInventories($data, $variant);
 
         return $variant;
     }

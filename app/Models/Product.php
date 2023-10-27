@@ -93,8 +93,53 @@ class Product extends Model implements ProductContract
      */
     public function variants(): HasMany
     {
-        return $this->hasMany(static::class, 'parent_id');
+        return $this->hasMany(static::class, 'parent_id')->with(['inventories']);
     }
+
+    /**
+     * The inventory sources that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function inventory_sources(): BelongsToMany
+    {
+        return $this->belongsToMany(InventorySource::class, 'product_inventories')
+            ->withPivot('id', 'quantity ');
+    }
+
+    /**
+     * Get inventory source quantity.
+     *
+     * @param  $inventorySourceId
+     * @return bool
+     */
+    public function inventory_source_qty($inventorySourceId)
+    {
+        return $this->inventories()
+            ->where('inventory_source_id', $inventorySourceId)
+            ->sum('qty');
+    }
+
+    /**
+     * The inventories that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function inventories(): HasMany
+    {
+        return $this->hasMany(ProductInventory::class, 'product_id');
+    }
+
+    /**
+     * The ordered inventories that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    // public function ordered_inventories(): HasMany
+    // {
+    //     // return $this->hasMany(ProductOrderedInventoryProxy::modelClass(), 'product_id');
+    // }
+
 
 
     /**
@@ -119,7 +164,7 @@ class Product extends Model implements ProductContract
         if ($this->type == 2) {
             $typeText = 'configurable';
         }
-        return $typeText;
+        return strtolower($typeText);
     }
 
 
@@ -156,6 +201,7 @@ class Product extends Model implements ProductContract
         // $this->typeInstance = app(config('product_types.' . $this->type . '.class'));
         // echo 'product_types.' . $this->getTypeText() . '.class';
         $this->typeInstance = app(config('product_types.' . $this->getTypeText() . '.class'));
+
 
         if (!$this->typeInstance) {
             throw new Exception("Please ensure the product type '{$this->type}' is configured in your application.");
@@ -334,10 +380,10 @@ class Product extends Model implements ProductContract
                     }
 
 
-                    $tmpAttributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
+                    // $tmpAttributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
                     
                     /**
-                     * This will set directly on payment pojo with groups
+                     * This will set directly on payment pojo without groups
                      */
                     $attributes[$attribute->code] = $this->getCustomAttributeValue($attribute);
                 }
@@ -345,7 +391,7 @@ class Product extends Model implements ProductContract
                 /**
                  * this will stamp attribute and attribute value with group
                  */
-                $attributes[$group->code] = $tmpAttributes;
+                // $attributes[$group->code] = $tmpAttributes;
             }
         }
 
