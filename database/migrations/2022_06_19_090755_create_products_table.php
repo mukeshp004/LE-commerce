@@ -18,7 +18,7 @@ class CreateProductsTable extends Migration
             $table->integer('parent_id')->unsigned()->nullable();
             $table->foreignId('attribute_family_id')->onDelete('restrict');
             $table->string('sku')->unique();
-            $table->string('type');
+            $table->integer('type')->unsigned()->nullable();
             $table->timestamps();
         });
 

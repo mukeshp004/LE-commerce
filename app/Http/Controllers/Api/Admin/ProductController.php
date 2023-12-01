@@ -48,6 +48,8 @@ class ProductController extends Controller
 
 
         $data = $request->all();
+        
+        // return $data;
 
         $product = $this->productRepository->create($data);
 
@@ -69,6 +71,7 @@ class ProductController extends Controller
             'variants',
             /*'super_attributes',*/
             'super_attribute_values',
+            'meta_data',
             'inventories'
         ])->findOrFail($id);
 

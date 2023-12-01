@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Storage;
 
 abstract class AbstractType
 {
-    
+
 
     /**
      * Product instance.
@@ -110,7 +110,7 @@ abstract class AbstractType
 
         // dd('AbstractType Data', $data);
 
-        $attributes = collect($data)->except(['variants', 'meta_description', 'inventory']);
+        $attributes = collect($data)->except(['variants', 'meta_data', 'inventory']);
 
         // foreach ($product->attribute_family->groups as $group) {
         //     if (isset($data[$group->code])) {
@@ -190,6 +190,12 @@ abstract class AbstractType
         //         $data['categories'] = [];
         //     }
 
+        // added product meta data
+
+        if (isset($data["meta_data"])) {
+            $product->meta_data()->updateOrCreate(['product_id' => $product->id], $data['meta_data']);
+        }
+
         //     $product->categories()->sync($data['categories']);
 
         //     $product->up_sells()->sync($data['up_sell'] ?? []);
@@ -197,8 +203,8 @@ abstract class AbstractType
         //     $product->cross_sells()->sync($data['cross_sell'] ?? []);
 
         //     $product->related_products()->sync($data['related_products'] ?? []);
-            
-            $this->productInventoryRepository->saveInventories($data, $product);
+
+        $this->productInventoryRepository->saveInventories($data, $product);
 
         //     $this->productImageRepository->uploadImages($data, $product);
 

@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Support\Collection;
 
 class Product extends Model implements ProductContract
@@ -84,6 +85,14 @@ class Product extends Model implements ProductContract
     public function product_flats(): HasMany
     {
         return $this->hasMany(ProductFlat::class);
+    }
+
+    /**
+     * Get the product Meta Data
+     */
+    public function meta_data(): HasOne
+    {
+        return $this->hasOne(ProductMetaData::class);
     }
 
     /**

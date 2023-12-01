@@ -20,11 +20,12 @@ class ChannelTableSeeder extends Seeder
         DB::table('channels')->insert([
             'id'                => 1,
             'code'              => 'default',
+            'name'              => 'default',
             'theme'             => 'velocity',
             'hostname'          => config('app.url'),
-            'root_category_id'  => 1,
-            'default_locale_id' => 1,
-            'base_currency_id'  => 1,
+            // 'root_category_id'  => 1,
+            'locale_id' => 1,
+            'currency_id'  => 1,
         ]);
 
         DB::table('channel_currencies')->insert([

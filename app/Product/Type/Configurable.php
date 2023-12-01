@@ -118,7 +118,7 @@ class Configurable extends AbstractType
         $data = [
             'sku'   => $variation['sku'],
             'name' => $variation['name'],
-            'inventories' => [],
+            'inventories' => isset($variation['inventories']) ? $variation['inventories']: [],
             'price' => $variation['price'],
             'weight' => 0,
             'status' => $variation['status']
@@ -189,7 +189,7 @@ class Configurable extends AbstractType
 
         /* Data tos store attribute and attribut options  start */
 
-        // $this->productInventoryRepository->saveInventories($data, $variant);
+        $this->productInventoryRepository->saveInventories($data, $variant);
 
         // $this->productImageRepository->upload($data, $variant, 'images');
 
@@ -243,9 +243,7 @@ class Configurable extends AbstractType
             foreach ($data['variants'] as $variantKey => $variantData) {
 
                 // create new variants
-                if (!isset($variantData['id'])) {
-                    $this->createVariant($product, $variantData, []);
-                } else {
+                if (isset($variantData['id']) && $variantData['id'] > 0) {
                     // update new variants
                     $variantId = $variantData['id'];
 
@@ -255,6 +253,8 @@ class Configurable extends AbstractType
                     }
 
                     $this->updateVariant($variantId, $variantData);
+                } else {
+                    $this->createVariant($product, $variantData, []);
                 }
             }
         }

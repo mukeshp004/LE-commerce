@@ -28,7 +28,6 @@ class ProductInventoryRepository extends Repository
 
         if (isset($data['inventories'])) {
             foreach ($data['inventories'] as $inventorySourceId => $quantity) {
-                // dd($inventorySourceId, $quantity);
                 if(str_contains($inventorySourceId, 'inventory-')) {
                     $inventorySourceId = intval(str_replace('inventory-','', $inventorySourceId));
                 }

@@ -4,3 +4,4 @@ truncate TABLE product_attribute_values;
 truncate TABLE product_super_attributes;
 truncate TABLE product_super_attribute_values;
 truncate TABLE product_inventories;
+truncate TABLE product_meta_data;
