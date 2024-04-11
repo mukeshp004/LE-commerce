@@ -7,9 +7,13 @@
     },
     "devDependencies": {
         "axios": "^1.6.4",
+<<<<<<< HEAD
         "laravel-echo": "^1.16.1",
         "laravel-vite-plugin": "^1.0",
         "pusher-js": "^8.4.0-rc2",
+=======
+        "laravel-vite-plugin": "^1.0",
+>>>>>>> dc2fbde657681c4201dc8e1484bc0e594f9386ca
         "vite": "^5.0"
     }
 }

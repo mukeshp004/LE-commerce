@@ -4,7 +4,11 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
+<<<<<<< HEAD
     "content-hash": "04ebb3dc4a9387752af7c1d804034afd",
+=======
+    "content-hash": "03985d23f4e5b76ef0ef339e922eaaab",
+>>>>>>> dc2fbde657681c4201dc8e1484bc0e594f9386ca
     "packages": [
         {
             "name": "bensampo/laravel-enum",
@@ -2766,6 +2770,7 @@
             "time": "2023-11-12T21:59:55+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "prettus/l5-repository",
             "version": "1.0.4",
             "source": {
@@ -2832,6 +2837,17 @@
             },
             "dist": {
                 "type": "zip",
+=======
+            "name": "psr/clock",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/php-fig/clock.git",
+                "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d"
+            },
+            "dist": {
+                "type": "zip",
+>>>>>>> dc2fbde657681c4201dc8e1484bc0e594f9386ca
                 "url": "https://api.github.com/repos/php-fig/clock/zipball/e41a24703d4560fd0acb709162f73b8adfc3aa0d",
                 "reference": "e41a24703d4560fd0acb709162f73b8adfc3aa0d",
                 "shasum": ""
@@ -3539,6 +3555,7 @@
             "time": "2023-11-08T05:53:05+00:00"
         },
         {
+<<<<<<< HEAD
             "name": "robclancy/presenter",
             "version": "1.3.2",
             "source": {
@@ -3596,6 +3613,17 @@
             },
             "dist": {
                 "type": "zip",
+=======
+            "name": "symfony/clock",
+            "version": "v7.0.5",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/clock.git",
+                "reference": "8b9d08887353d627d5f6c3bf3373b398b49051c2"
+            },
+            "dist": {
+                "type": "zip",
+>>>>>>> dc2fbde657681c4201dc8e1484bc0e594f9386ca
                 "url": "https://api.github.com/repos/symfony/clock/zipball/8b9d08887353d627d5f6c3bf3373b398b49051c2",
                 "reference": "8b9d08887353d627d5f6c3bf3373b398b49051c2",
                 "shasum": ""
