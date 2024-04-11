@@ -7,21 +7,19 @@ use Database\Seeders\AttributeGroupTableSeeder;
 use Database\Seeders\AttributeOptionTableSeeder;
 use Database\Seeders\AttributeTableSeeder;
 use Database\Seeders\UserSeeder;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+//use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
     /**
      * Seed the application's database.
-     *
-     * @return void
      */
     public function run()
     {
-        // \App\Models\User::factory(10)->create();
+        // User::factory(10)->create();
 
-        // \App\Models\User::factory()->create([
+        // User::factory()->create([
         //     'name' => 'Test User',
         //     'email' => 'test@example.com',
         // ]);
