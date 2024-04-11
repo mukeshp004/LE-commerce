@@ -3,7 +3,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use Prettus\Repository\Providers\RepositoryServiceProvider;
+// use Prettus\Repository\Providers\RepositoryServiceProvider;
 
 // use Rinvex\Attributes\Models\Attribute;
 // use Rinvex\Attributes\Models\Type\Boolean;
@@ -21,7 +21,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->register(RepositoryServiceProvider::class);
+        // $this->app->register(RepositoryServiceProvider::class);
     }
 
     /**
