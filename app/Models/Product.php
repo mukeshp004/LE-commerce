@@ -444,4 +444,37 @@ class Product extends Model implements ProductContract
         return $loadedFamilyAttributes[$this->attribute_family_id] = app(AttributeRepository::class)
             ->getFamilyAttributes($this->attribute_family);
     }
+
+    /**
+     * The related products that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function related_products(): BelongsToMany
+    {
+        return $this->belongsToMany(static::class, 'product_relations', 'product_id', 'related_id')
+            ->limit(4);
+    }
+
+    /**
+     * The up sells that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function up_sells(): BelongsToMany
+    {
+        return $this->belongsToMany(static::class, 'product_up_sells', 'product_id', 'related_id')
+            ->limit(4);
+    }
+
+    /**
+     * The cross sells that belong to the product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function cross_sells(): BelongsToMany
+    {
+        return $this->belongsToMany(static::class, 'product_cross_sells', 'product_id', 'related_id')
+            ->limit(4);
+    }
 }

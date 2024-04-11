@@ -41,11 +41,26 @@ return [
             'provider' => 'users',
         ],
 
-        'api' => [
-            'driver' => 'token',
-            'provider' => 'users',
+        // 'api' => [
+        //     'driver' => 'token',
+        //     'provider' => 'users',
+        //     'hash' => false,
+        // ],
+
+        
+        'admin' => [
+            'driver' => 'sanctum',
+            'provider' => 'admins',
             'hash' => false,
         ],
+
+        
+        'customer' => [
+            'driver' => 'sanctum',
+            'provider' => 'customers',
+            'hash' => false,
+        ],
+
     ],
 
     /*
@@ -71,10 +86,15 @@ return [
             'model' => App\Models\User::class,
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'admins' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\User::class,
+        ],
+
+        'customers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Customer::class,
+        ],
     ],
 
     /*

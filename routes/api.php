@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProductController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,12 +16,36 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+// Admin routes
+Route::prefix('admin')->group(function () {
+    Route::post('login', 'Api\Admin\LoginController@authenticated');
+
+});
+
+// customer Routes
+Route::prefix('customer')->group(function () {
+    Route::post('login', 'Api\Admin\CustomerController@login');
+    Route::post('register', 'Api\Admin\CustomerController@register');
+});
+
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+
+
+Route::middleware('auth:customer,admin')->get('/user', function (Request $request) {
     return $request->user();
 });
 
 
-Route::post('login', 'Api\Admin\LoginController@authenticated');
+
+
+// Route::post('login', 'Api\Admin\LoginController@authenticated');
+// Route::post('customer/login', 'Api\Admin\CustomerController@login');
+
+Route::apiResources([
+    'file' => 'FileController'
+]);
 
 Route::middleware('auth:sanctum')->group(function () {
 

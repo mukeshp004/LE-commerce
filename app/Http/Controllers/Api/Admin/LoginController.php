@@ -24,7 +24,7 @@ class LoginController extends Controller
 
     protected function guard()
     {
-        return Auth::guard('guard-name');
+        return Auth::guard('admin');
     }
 
     function authenticated(Request $request)
@@ -43,7 +43,7 @@ class LoginController extends Controller
             ], 404);
         }
 
-        $user['token'] = $user->createToken($request->device_name)->plainTextToken;
+        $user['token'] = $user->createToken("admin-$request->device_name")->plainTextToken;
 
         return response($user, 200);
     }

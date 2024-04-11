@@ -33,7 +33,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AttributeTableSeeder::class);
         $this->call(AttributeFamilyTableSeeder::class);
         $this->call(AttributeGroupTableSeeder::class);
-        $this->call(AttributeGroupMappingSeeder::class);
+        $this->call(AttributeGroupMappingTableSeeder::class);
         $this->call(AttributeOptionTableSeeder::class);
         $this->call(LocalesTableSeeder::class);
         $this->call(ChannelTableSeeder::class);

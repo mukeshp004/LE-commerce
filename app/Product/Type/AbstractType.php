@@ -5,6 +5,7 @@ namespace App\Product\Type;
 use App\Models\ProductAttributeValue;
 use App\Repositories\AttributeRepository;
 use App\Repositories\ProductAttributeValueRepository;
+use App\Repositories\ProductImageRepository;
 use App\Repositories\ProductInventoryRepository;
 use App\Repositories\ProductRepository;
 use Illuminate\Support\Facades\Storage;
@@ -79,7 +80,7 @@ abstract class AbstractType
         protected ProductRepository $productRepository,
         protected ProductAttributeValueRepository $attributeValueRepository,
         protected ProductInventoryRepository $productInventoryRepository,
-        // protected ProductImageRepository $productImageRepository,
+        protected ProductImageRepository $productImageRepository,
         // protected ProductVideoRepository $productVideoRepository
 
     ) {
@@ -196,7 +197,7 @@ abstract class AbstractType
             $product->meta_data()->updateOrCreate(['product_id' => $product->id], $data['meta_data']);
         }
 
-        //     $product->categories()->sync($data['categories']);
+            $product->categories()->sync($data['categories']);
 
         //     $product->up_sells()->sync($data['up_sell'] ?? []);
 
@@ -206,7 +207,7 @@ abstract class AbstractType
 
         $this->productInventoryRepository->saveInventories($data, $product);
 
-        //     $this->productImageRepository->uploadImages($data, $product);
+        // $this->productImageRepository->uploadImages($data, $product);
 
         //     $this->productVideoRepository->uploadVideos($data, $product);
 
