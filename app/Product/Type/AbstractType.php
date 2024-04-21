@@ -197,7 +197,9 @@ abstract class AbstractType
             $product->meta_data()->updateOrCreate(['product_id' => $product->id], $data['meta_data']);
         }
 
+        if(isset($data['categories'])) {
             $product->categories()->sync($data['categories']);
+        }
 
         //     $product->up_sells()->sync($data['up_sell'] ?? []);
 

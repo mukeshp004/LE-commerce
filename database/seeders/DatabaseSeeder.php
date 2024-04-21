@@ -37,5 +37,7 @@ class DatabaseSeeder extends Seeder
         $this->call(AttributeOptionTableSeeder::class);
         $this->call(LocalesTableSeeder::class);
         $this->call(ChannelTableSeeder::class);
+        $this->call(CategorySeeder::class);
+        $this->call(InventorySourceSeeder::class);
     }
 }
