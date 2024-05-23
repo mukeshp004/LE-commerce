@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8caa03bbe05095215e4f268190fda6b2",
+    "content-hash": "c3cf1d726cedd17ab45f8ede422f5e0f",
     "packages": [
         {
             "name": "astrotomic/laravel-translatable",
@@ -3385,7 +3385,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-04-27T21:32:50+00:00"
+            "time": "2023-11-08T05:53:05+00:00"
         },
         {
             "name": "symfony/clock",
