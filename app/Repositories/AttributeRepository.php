@@ -39,6 +39,48 @@ class AttributeRepository extends Repository
     }
 
     /**
+     * Get product default attributes.
+     *
+     * @param  array  $codes
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function getProductDefaultAttributes($codes = null)
+    {
+        $attributeColumns = [
+            'id',
+            'code',
+            'value_per_channel',
+            'value_per_locale',
+            'type',
+            'is_filterable',
+            'is_configurable',
+        ];
+
+        if (
+            !is_array($codes)
+            && !$codes
+        ) {
+            return $this->findWhereIn('code', [
+                'name',
+                'description',
+                'short_description',
+                'url_key',
+                'price',
+                'special_price',
+                'special_price_from',
+                'special_price_to',
+                'status',
+            ], $attributeColumns);
+        }
+
+        if (in_array('*', $codes)) {
+            return $this->all($attributeColumns);
+        }
+
+        return $this->findWhereIn('code', $codes, $attributeColumns);
+    }
+
+    /**
      * Get family attributes.
      *
      * @param  \Webkul\Attribute\Contracts\AttributeFamily  $attributeFamily

@@ -43,22 +43,6 @@ class ProductAttributeValueRepository extends Repository
      * @param  array  $data
      * @return \Webkul\Product\Contracts\ProductAttributeValue
      */
-    // public function create(array $data)
-    // {
-    //     if (isset($data['attribute_id'])) {
-    //         $attribute = Attribute::find($data['attribute_id']);
-    //     } else {
-    //         $attribute = Attribute::findOneByField('code', $data['attribute_code']);
-    //     }
-
-    //     if (!$attribute) {
-    //         return;
-    //     }
-
-    //     $data[ProductAttributeValue::$attributeTypeFields[$attribute->type]] = $data['value'];
-
-    //     return $this->model->create($data);
-    // }
 
     /**
      * @param  string  $column
@@ -69,8 +53,12 @@ class ProductAttributeValueRepository extends Repository
      */
     public function isValueUnique($productId, $attributeId, $column, $value)
     {
-        $result = $this->resetScope()->model->where($column, $value)->where('attribute_id', '=', $attributeId)->where('product_id', '!=', $productId)->get();
+        $count = $this->resetScope()
+            ->model->where($column, $value)
+            ->where('attribute_id', '=', $attributeId)
+            ->where('product_id', '!=', $productId)
+            ->count('id');
 
-        return ! $result->count();
+        return !$count;
     }
 }

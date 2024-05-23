@@ -62,6 +62,25 @@ class Attribute extends Model
         'url' => 4
     ];
 
+    /**
+     * Attribute type fields.
+     *
+     * @var array
+     */
+    public $attributeTypeFields = [
+        'text'        => 'text_value',
+        'textarea'    => 'text_value',
+        'price'       => 'float_value',
+        'boolean'     => 'boolean_value',
+        'select'      => 'integer_value',
+        'multiselect' => 'text_value',
+        'datetime'    => 'datetime_value',
+        'date'        => 'date_value',
+        'file'        => 'text_value',
+        'image'       => 'text_value',
+        'checkbox'    => 'text_value',
+    ];
+
 
     protected $with = ['translations', 'options'];
 
@@ -71,5 +90,15 @@ class Attribute extends Model
     public function options()
     {
         return $this->hasMany(AttributeOption::class);
+    }
+
+    /**
+     * Returns attribute value table column based attribute type
+     *
+     * @return string
+     */
+    protected function getColumnNameAttribute()
+    {
+        return $this->attributeTypeFields[$this->type];
     }
 }

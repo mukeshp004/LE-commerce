@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Listeners\ProductFlatListener;
 use App\Models\Product;
 use App\Models\ProductSuperAttributeValue;
+use App\Repositories\CategoryRepository;
 use App\Repositories\ProductRepository;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
@@ -16,8 +17,10 @@ class ProductController extends Controller
 
     private ProductRepository $productRepository;
 
-    function __construct(ProductRepository $productRepository)
-    {
+    function __construct(
+        protected CategoryRepository $categoryRepository,
+        ProductRepository $productRepository
+    ) {
         $this->productRepository = $productRepository;
     }
 
@@ -48,7 +51,7 @@ class ProductController extends Controller
 
 
         $data = $request->all();
-        
+
         // return $data;
 
         $product = $this->productRepository->create($data);
@@ -76,7 +79,7 @@ class ProductController extends Controller
         ])->findOrFail($id);
 
         $pav = ProductSuperAttributeValue::select(['attribute_id', 'option_id'])->where('product_id', $product->id)->get();
-        
+
         if ($pav) {
             // $pav = $pav->groupBy('attribute_id');
             $pav = $pav->mapToGroups(function ($item, int $key) {
@@ -135,5 +138,19 @@ class ProductController extends Controller
     public function destroy(Product $product)
     {
         //
+    }
+
+    public function getProductBySlug(Request $request, $slug)
+    {
+        // dd($slug);
+        $category = $this->categoryRepository->findBySlug($slug);
+
+        if ($category) {
+            return $this->productRepository->getAll(['category_id' => $category->id]);
+        }
+
+        $product = $this->productRepository->findBySlug($slug);
+
+        return $product;
     }
 }

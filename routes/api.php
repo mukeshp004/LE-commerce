@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Route;
 // Admin routes
 Route::prefix('admin')->group(function () {
     Route::post('login', 'Api\Admin\LoginController@authenticated');
-
 });
 
 // customer Routes
@@ -62,4 +61,13 @@ Route::middleware('auth:sanctum')->group(function () {
             'inventory-source' => 'InventorySourceController',
         ]);
     });
+});
+
+
+Route::namespace('Api\Admin')->group(function () {
+    Route::apiResources([
+        'categories' => 'CategoryController'
+    ]);
+
+    Route::post('products/slug/{slug}', 'ProductController@getProductBySlug');
 });
